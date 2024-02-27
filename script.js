@@ -163,6 +163,131 @@ const headerObserver = new IntersectionObserver(stickyNav, {
 
 headerObserver.observe(header);
 
+// Revealing Sections
+// the observer function
+function revealSectionFunc(entries, observer) {
+  const [entry] = entries;
+  if (entry.isIntersecting) {
+    entry.target.classList.remove('section--hidden');
+    observer.unobserve(entry.target);
+  }
+}
+// declaring the threahold(at what percentage should the intersection occure), and what object is the observer observering
+const secObserver = new IntersectionObserver(revealSectionFunc, {
+  root: null,
+  threshold: 0.1,
+});
+// callinng the observer on all sections
+const allSections = document.querySelectorAll('.section');
+allSections.forEach(function (section) {
+  secObserver.observe(section);
+  // section.classList.add('section--hidden');
+});
+
+// implementing Lazy loading images to improve performance
+function imgLoad(entries, observer) {
+  const [entry] = entries;
+  if (!entry.isIntersecting) return;
+
+  // replace the src attribute with the data-src attribute
+  entry.target.src = entry.target.dataset.src;
+  // removing the blur filter
+  // entry.target.classList.remove('lazy-img');
+  entry.target.addEventListener('load', function () {
+    entry.target.classList.remove('lazy-img'); // this removes the blur feature when the image is done loading
+  });
+  observer.unobserve(entry.target);
+}
+const imgObserver = new IntersectionObserver(imgLoad, {
+  root: null,
+  threshold: 0.4,
+  rootMargin: '200px', //making the image load before the images is views
+});
+
+const allImages = document.querySelectorAll('img[data-src]');
+allImages.forEach(function (img) {
+  imgObserver.observe(img);
+});
+
+// BUILDING THE SLIDER COMPONENT
+const slides = document.querySelectorAll('.slide');
+let curSlide = 0;
+const maxSlide = slides.length - 1;
+
+// Adding the active class to the current slide dot
+function activateDot(slide) {
+  document.querySelectorAll('.dots__dot').forEach(function (d) {
+    d.classList.remove('dots__dot--active');
+  });
+  document
+    .querySelector(`.dots__dot[data-slide="${slide}"]`)
+    .classList.add('dots__dot--active');
+}
+
+// working on the buttons
+const btnLeft = document.querySelector('.slider__btn--left');
+const btnRight = document.querySelector('.slider__btn--right');
+function goToSlide(slide) {
+  slides.forEach(
+    (s, i) => (s.style.transform = `translateX(${100 * (i - slide)}%)`)
+  );
+}
+// putting all the slides side by side
+goToSlide(0);
+
+function nextSlide() {
+  if (curSlide === maxSlide) {
+    curSlide = 0;
+  } else {
+    curSlide++;
+  }
+  goToSlide(curSlide);
+  activateDot(curSlide);
+}
+function prevSlide() {
+  if (curSlide === 0) {
+    curSlide = maxSlide;
+  } else {
+    curSlide--;
+  }
+  goToSlide(curSlide);
+  activateDot(curSlide);
+}
+
+// going to the next slide
+btnRight.addEventListener('click', nextSlide);
+
+// going the previous slide
+btnLeft.addEventListener('click', prevSlide);
+
+// implementing the arrow keys move slider
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowRight') nextSlide();
+  e.key === 'ArrowLeft' && prevSlide();
+});
+
+// working on the slider dots
+const dotContainer = document.querySelector('.dots');
+function createDots() {
+  slides.forEach((_, i) => {
+    dotContainer.insertAdjacentHTML(
+      'beforeend',
+      `<button class = "dots__dot" data-slide="${i}"></button>`
+    );
+  });
+}
+createDots();
+
+// linking the dots to each slide
+dotContainer.addEventListener('click', function (e) {
+  if (e.target.classList.contains('dots__dot')) {
+    const slide = e.target.dataset.slide;
+    goToSlide(slide);
+    activateDot(slide);
+  }
+});
+activateDot(0);
+
 ///////////////////////////////////////////////////////////////////////////////
 /* --------------Selecting Elements from html ------------*/
 // console.log(document.documentElement); // selecting the entire page
