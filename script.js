@@ -481,3 +481,23 @@ checking if an object have a specific value
 const hasValue = (obj, value) => Object.values(obj).includes(value);
 console.log(hasValue(message, width));
 */
+
+/* --------- DOM content loaded Event---------*/
+// this event occurs immediately the html is downloaded and parsed into the dom tree
+document.addEventListener('DOMContentLoaded', function (e) {
+  console.log('HTML parsed and DOm tree built', e);
+});
+
+// load event
+// this even occurs when the html and all external scripts is completely loaded
+window.addEventListener('load', function (e) {
+  console.log('Page fully loaded', e);
+});
+
+// beforeunload event
+// this event occurs as soon as the user tries to leave the page
+// window.addEventListener('beforeunload', function (e) {
+//   e.preventDefault();
+//   console.log(e);
+//   e.returnValue = '';
+// });
